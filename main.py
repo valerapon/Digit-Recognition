@@ -11,6 +11,9 @@ import torch.optim as optim
 from PIL import Image
 from matplotlib import pyplot as plt
 
+batch_size = 50
+epoch_num = 20
+
 class Network(nn.Module):
         def __init__(self):
                 super(Network, self).__init__()
@@ -23,6 +26,7 @@ class Network(nn.Module):
         def forward(self, x):
                 x = F.relu(F.max_pool2d(self.conv1(x), 2))
                 x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+                # x = F.relu(F.max_pool2d(self.conv2(x), 2))
                 x = x.view(-1, 320)
                 x = F.relu(self.fc1(x))
                 x = F.dropout(x, training=self.training)
@@ -37,25 +41,38 @@ def train(network, train_loader, optimizer, epoch):
                 data = data.cuda()
                 target = target.cuda()
 
-                optimizer.zero_grad()
-                output = network.forward(data)
-                loss = F.cross_entropy(output, target)
-                # loss = F.nll_loss(output, target)
-                loss.backward()
-                optimizer.step()
-                # if batch_idx % 10 == 0:
-                #         print('Train epoch: %s, {%s}, Loss: %s' % (epoch, batch_idx, loss.item()))
+                def closure():
+                        optimizer.zero_grad()
+                        output = network.forward(data)
+                        loss = F.cross_entropy(output, target)
+                        loss.backward()   
+                        if batch_idx % 100 == 0:
+                                print('Train epoch: %s, {%s}, Loss: %s' % (epoch, batch_idx, loss.item()))
+                        return loss
+                optimizer.step(closure)
+
+
 
 def test(network, test_loader):
         test_loss = 0
+        correct = 0
 
         network.eval()
         with torch.no_grad():
-                for data, target in enumerate(test_loader):
+                for batch_idx, (data, target) in enumerate(test_loader):
+
+                        data = data.cuda()
+                        target = target.cuda()
+
                         output = network.forward(data)
-                        test_loss += F.nll_loss(output, target, size_average=False).item()
-                test_loss /= len(test_loader.dataset)
-                print(test_loader)
+                        # test_loss += F.cross_entropy(output, train).item()
+                        # print(output)
+                        pred = output.argmax(dim=1)
+                        correct += (pred == target).sum().item()
+                print('TOTAL:', correct / len(test_loader.dataset))
+
+                # test_loss /= len(test_loader.dataset)
+                # print(test_loader)
                         # pred = output.data.max(1, keepdim=True)[1]
                         # correct += pred.eq(target.data.view_as(pred)).sum()
 
@@ -71,7 +88,7 @@ if __name__ == '__main__':
                                         torchvision.transforms.ToTensor()
                                 ])
                 ),
-                batch_size=64,
+                batch_size=batch_size,
                 shuffle=True
         )
 
@@ -89,19 +106,14 @@ if __name__ == '__main__':
         )
 
         Net = Network().to(device='cuda')
-        optimizer = optim.SGD(Net.parameters(), lr=0.01, momentum=0.5)
+        optimizer = optim.Adagrad(Net.parameters(), lr=0.01)
 
-        for i in range(3):
+        for i in range(epoch_num):
                 train(Net, train_loader, optimizer, i)
 
-        i, (data, target) = next(enumerate(train_loader))
-        # print(data[0])
-        transforms.ToPILImage()(data[0]).show()
-        print(target)
-        # test(Net, test_loader)
+        test(Net, test_loader)
 
-        Net.eval()
-        print(Net.forward(data[:1].cuda()))
+    
 
 
 
