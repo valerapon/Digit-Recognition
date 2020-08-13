@@ -1,3 +1,3 @@
-# Digit-Recognition
+# Kaggle-competitions
 Digit recognition
 Hello
