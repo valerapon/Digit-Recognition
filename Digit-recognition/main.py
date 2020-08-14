@@ -44,7 +44,7 @@ def train(network, train_loader, optimizer, epoch):
                 def closure():
                         optimizer.zero_grad()
                         output = network.forward(data)
-                        loss = F.cross_entropy(output, target)
+                        loss = F.cross_entropy(output, target)#.cuda()
                         loss.backward()   
                         if batch_idx % 100 == 0:
                                 print('Train epoch: %s, {%s}, Loss: %s' % (epoch, batch_idx, loss.item()))
