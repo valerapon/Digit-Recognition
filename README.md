@@ -1,3 +1,3 @@
 # Kaggle-competitions
-Digit recognition: https://www.kaggle.com/c/digit-recognizer
-Hello
+Digit recognition: https://www.kaggle.com/c/digit-recognizer  
+
