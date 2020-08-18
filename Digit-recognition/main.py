@@ -81,37 +81,46 @@ def test(network, test_loader):
 if __name__ == '__main__':
         train_loader = torch.utils.data.DataLoader(
                 torchvision.datasets.MNIST(
-                        root=os.getcwd(),
+                        root=os.getcwd() + '/Digit-recognition',
                         train=True,
                         download=True,
                         transform=torchvision.transforms.Compose([
                                         torchvision.transforms.ToTensor()
                                 ])
                 ),
-                batch_size=batch_size,
+                # batch_size=batch_size,
+                batch_size=1,
                 shuffle=True
         )
 
         test_loader = torch.utils.data.DataLoader(
                 torchvision.datasets.MNIST(
-                        root=os.getcwd(),
+                        root=os.getcwd() + '/Digit-recognition',
                         train=False,
                         download=True,
                         transform=torchvision.transforms.Compose([
                                         torchvision.transforms.ToTensor()
                                 ])
                 ),
-                batch_size=1000,
+                # batch_size=1000,
+                batch_size=1,
                 shuffle=True
         )
+        
+        # print(len(train_loader))
+        # print(len(test_loader))
+        # for data, target in train_loader:
+        #         print(data)
+        #         print(data.shape)
+        #         print(target.item())
+        #         break
+        # Net = Network().to(device='cuda')
+        # optimizer = optim.Adagrad(Net.parameters(), lr=0.01)
 
-        Net = Network().to(device='cuda')
-        optimizer = optim.Adagrad(Net.parameters(), lr=0.01)
+        # for i in range(epoch_num):
+        #         train(Net, train_loader, optimizer, i)
 
-        for i in range(epoch_num):
-                train(Net, train_loader, optimizer, i)
-
-        test(Net, test_loader)
+        # test(Net, test_loader)
 
     
 
